@@ -2,11 +2,11 @@
 '''
 Counting LBP Holders of Radicle
 
-BlockNO  11927445
 Contract 0x31c8eacbffdd875c74b94b077895bd78cf1e64a3
 Date     Mon Mar 15 05:13:37 CST 2021
 FromTX   0xade852fd2265723b66198b46dd08718e1754fd0b0468ad1d25651355ef9984db
 '''
+
 import os
 import sys
 import calendar
@@ -23,8 +23,8 @@ TXNS = 'https://api.ethplorer.io/getTokenHistory/\
 API_KEY_PATH = "API_KEY"
 TXNS_PATH = "txns.json"
 LBP_BUYERS_PATH = "lbp_buyers.json"
-LBP_HOLDERS_PATH = "lbp_holders.json"
-HOLDERS_PATH = "holders.json"
+LBP_CONTRiBUTORS_PATH = "lbp_contributors.json"
+LBP_HOLDERS_PATH = "holders.json"
 
 
 def key():
@@ -122,16 +122,16 @@ def process():
         with open(LBP_BUYERS_PATH, 'w') as out:
             json.dump(buyers, out)
 
-    # Write LBP holders
+    # Write LBP contributors
     if os.path.exists(LBP_HOLDERS_PATH) is False:
         lbp_holders = dict(filter(lambda t: t[0] not in lbp_sellers, buyers.items()))
-        with open(LBP_HOLDERS_PATH, 'w') as out:
+        with open(LBP_CONTRiBUTORS_PATH, 'w') as out:
             json.dump(lbp_holders, out)
 
-    # Write holders
-    if os.path.exists(HOLDERS_PATH) is False:
+    # Write LBP holders
+    if os.path.exists(LBP_HOLDERS_PATH) is False:
         holders = dict(filter(lambda t: t[0] not in sellers, buyers.items()))
-        with open(HOLDERS_PATH, 'w') as out:
+        with open(LBP_HOLDERS_PATH, 'w') as out:
             json.dump(holders, out)
 
 
@@ -139,7 +139,7 @@ def process():
 
 
 def format_holders():
-    with open(HOLDERS_PATH) as f:
+    with open(LBP_HOLDERS_PATH) as f:
         holders = json.loads(f.read())
         fmt = "".join([
             '        %s  %s\n' % (holder, value) for (holder, value) in holders.items()
@@ -156,7 +156,7 @@ class Cmd():
         '''
         Count the LBP holders
         '''
-        with open(HOLDERS_PATH) as f:
+        with open(LBP_HOLDERS_PATH) as f:
             lbp_holders = json.loads(f.read())
 
         print('LBP holders:  %s' % len(lbp_holders))
@@ -170,7 +170,7 @@ class Cmd():
         '''
         Format the LBP holders
         '''
-        with open(HOLDERS_PATH) as f:
+        with open(LBP_HOLDERS_PATH) as f:
             holders = json.loads(f.read())
 
         fmt = "".join([
@@ -196,7 +196,7 @@ if __name__ == '__main__':
             json.dump(txns(key(), timestamp, []), out)
 
 
-    if os.path.exists(HOLDERS_PATH) is False:
+    if os.path.exists(LBP_HOLDERS_PATH) is False:
         process()
 
 

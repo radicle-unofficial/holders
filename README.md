@@ -4,17 +4,17 @@ This repo is for counting the holders of RAD from LBP till block `12039504`.
 
 Here we are using ethplorer for fetching the records of transfer
 events, for using this script yourselves, go to https://ethplorer.io
-and generate a API_KEY unless you'll fetching the txns with limit 10
+and generate a `API_KEY` unless you'll fetch the txns with limit 10
 in every request.
 
-Feel free to modify or contribute to this script.
+Feel free to modify or contribute to this script!
 
 
 ## Result
 
-| LBP original holders | LBP holders        |
-|----------------------|--------------------|
-| 1928370.6939732786   | 1079558.0705975965 |
+| LBP original holders (1702) | LBP holders (1097) |
+|-----------------------------|--------------------|
+| 1928370.6939732786          | 1079558.0705975965 |
 
 
 ## Files

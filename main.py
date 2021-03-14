@@ -194,9 +194,7 @@ if __name__ == '__main__':
         with open(TXNS_PATH, 'w') as out:
             json.dump(txns(key(), timestamp, []), out)
 
-
     if os.path.exists(LBP_HOLDERS_PATH) is False:
         process()
-
 
     fire.Fire(Cmd)

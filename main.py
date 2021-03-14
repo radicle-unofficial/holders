@@ -1,9 +1,10 @@
+#!/usr/bin/python3
 '''
 Counting LBP Holders of Radicle
 
 BlockNO  11927445
 Contract 0x31c8eacbffdd875c74b94b077895bd78cf1e64a3
-Date     Feb-25-2021 04:39:03 PM +UTC
+Date     Mon Mar 15 05:13:37 CST 2021
 FromTX   0xade852fd2265723b66198b46dd08718e1754fd0b0468ad1d25651355ef9984db
 '''
 import os
@@ -11,13 +12,19 @@ import sys
 import calendar
 import time
 import json
+import fire
 import requests as r
 
-LBP = '0xade852fd2265723b66198b46dd08718e1754fd0b0468ad1d25651355ef9984db'
+LBP_START = '0xade852fd2265723b66198b46dd08718e1754fd0b0468ad1d25651355ef9984db'
+LBP_END = "0xd5b0fe040bd08ea685489b3bd8e3bfe447a4b7ca7e88e513c0aa2da2057c2c7d"
 TXNS = 'https://api.ethplorer.io/getTokenHistory/\
 0x31c8eacbffdd875c74b94b077895bd78cf1e64a3?apiKey={KEY}&type=transfer\
 &limit=1000&timestamp={TS}'
 API_KEY_PATH = "API_KEY"
+TXNS_PATH = "txns.json"
+LBP_BUYERS_PATH = "lbp_buyers.json"
+LBP_HOLDERS_PATH = "lbp_holders.json"
+HOLDERS_PATH = "holders.json"
 
 
 def key():
@@ -31,7 +38,7 @@ def key():
         return api_key.read()
 
 
-def txns(api_key, timestamp, history):
+def txns(api_key, ts, history):
     '''
     Get all transfer events of Radicle from the LBP
 
@@ -46,9 +53,9 @@ def txns(api_key, timestamp, history):
     }
     ```
     '''
-    print(f'Fetching txns start at {timestamp}...')
+    print('Fetching txns start at %s...' % ts)
     res = json.loads(r.get(
-        TXNS.replace("{TS}", str(timestamp)).replace('{KEY}', api_key)
+        TXNS.replace("{TS}", str(ts)).replace('{KEY}', api_key)
     ).text)
 
     # If request failed
@@ -57,33 +64,140 @@ def txns(api_key, timestamp, history):
         sys.exit(1)
 
     # Apply new format for counting
-    for operation in res['operations']:
-        # Finish fetching while reaching the initial tx of LBP
-        if operation['transactionHash'] == LBP:
-            print(f'Total txns: {len(history)}')
-            return history
-
+    for op in res['operations']:
         # Append to history
         history.append({
-            'transactionHash': operation['transactionHash'],
-            'timestamp': operation['timestamp'],
-            'value': operation['value'],
-            'from': operation['from'],
-            'to': operation['to']
+            'transactionHash': op['transactionHash'],
+            'timestamp': op['timestamp'],
+            'value': op['value'],
+            'from': op['from'],
+            'to': op['to']
         })
 
+        # Finish fetching while reaching the initial tx of LBP
+        if op['transactionHash'] == LBP_START:
+            print('\n-------------------------------------\n')
+            print('Total txns: %s' % len(history))
+            return history
+
     # Keep fetching to the LBP init TX
-    print(f'Current txns: {len(history)}')
+    print('Current txns: %s' % len(history))
     return txns(api_key, history[len(history) - 1]['timestamp'], history)
 
 
-def main():
+def process():
     '''
-    Main FN
+    Process LBP buyers and holders
     '''
-    timestamp = calendar.timegm(time.gmtime())
-    with open('holders.json', 'w') as out:
-        json.dump(txns(key(), timestamp, []), out)
+    with open(TXNS_PATH) as f:
+        txns = json.loads(f.read())
+
+    lbp = False
+    buyers = {}
+    sellers = set([])
+    lbp_sellers = set([])
+
+    # Get buyers and sellers
+    for tx in txns:
+        sellers.add(tx['from'])
+
+        if tx['transactionHash'] == LBP_END:
+            lbp = True
+
+        if lbp is False:
+            continue
+
+        # Count lbp sellers
+        lbp_sellers.add(tx['from'])
+
+        # Count buyer and their RADs
+        buyer = tx['to']
+        if buyer in buyers:
+            buyers[buyer] = str(int(buyers[buyer]) + int(tx['value']))
+        else:
+            buyers[buyer] = tx['value']
+
+    # Write LBP buyers
+    if os.path.exists(LBP_BUYERS_PATH) is False:
+        with open(LBP_BUYERS_PATH, 'w') as out:
+            json.dump(buyers, out)
+
+    # Write LBP holders
+    if os.path.exists(LBP_HOLDERS_PATH) is False:
+        lbp_holders = dict(filter(lambda t: t[0] not in lbp_sellers, buyers.items()))
+        with open(LBP_HOLDERS_PATH, 'w') as out:
+            json.dump(lbp_holders, out)
+
+    # Write holders
+    if os.path.exists(HOLDERS_PATH) is False:
+        holders = dict(filter(lambda t: t[0] not in sellers, buyers.items()))
+        with open(HOLDERS_PATH, 'w') as out:
+            json.dump(holders, out)
 
 
-main()
+
+
+
+def format_holders():
+    with open(HOLDERS_PATH) as f:
+        holders = json.loads(f.read())
+        fmt = "".join([
+            '        %s  %s\n' % (holder, value) for (holder, value) in holders.items()
+        ])
+        output = '''
+        holder                                      Bought RADs in LBP
+        -----------------------------------------------------------------------\n%s
+        '''
+        print(output % fmt)
+
+
+class Cmd():
+    def count(self):
+        '''
+        Count the LBP holders
+        '''
+        with open(LBP_BUYERS_PATH) as f:
+            lbp_buyers = json.loads(f.read())
+
+        with open(HOLDERS_PATH) as f:
+            lbp_holders = json.loads(f.read())
+
+        print("LBP buyers:  %s" % len(lbp_buyers))
+        print("LBP holders: %s" % len(lbp_holders))
+
+
+    def holders(self):
+        '''
+        Format the LBP holders
+        '''
+        with open(HOLDERS_PATH) as f:
+            holders = json.loads(f.read())
+
+        fmt = "".join([
+            '        %s  %s\n' % (
+                holder, int(value) / pow(10, 18)
+            ) for (holder, value) in holders.items()
+        ])
+        output = '''
+        holder                                      Bought RADs in LBP
+        -----------------------------------------------------------------------\n%s
+        '''
+        print(output % fmt)
+
+
+if __name__ == '__main__':
+    '''
+    Fetch LBP txns and write the result to txns.json if not exists,
+    the order of the data list is from now to the start of the LBP.
+    '''
+    if os.path.exists(TXNS_PATH) is False:
+        timestamp = calendar.timegm(time.gmtime())
+        with open(TXNS_PATH, 'w') as out:
+            json.dump(txns(key(), timestamp, []), out)
+
+
+    if os.path.exists(HOLDERS_PATH) is False:
+        process()
+
+
+    fire.Fire(Cmd)

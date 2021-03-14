@@ -2,8 +2,8 @@
 '''
 Counting LBP Holders of Radicle
 
+Block    12039504
 Contract 0x31c8eacbffdd875c74b94b077895bd78cf1e64a3
-Date     Mon Mar 15 05:13:37 CST 2021
 FromTX   0xade852fd2265723b66198b46dd08718e1754fd0b0468ad1d25651355ef9984db
 '''
 

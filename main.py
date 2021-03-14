@@ -22,9 +22,8 @@ TXNS = 'https://api.ethplorer.io/getTokenHistory/\
 &limit=1000&timestamp={TS}'
 API_KEY_PATH = "API_KEY"
 TXNS_PATH = "txns.json"
-LBP_BUYERS_PATH = "lbp_buyers.json"
-LBP_CONTRiBUTORS_PATH = "lbp_contributors.json"
-LBP_HOLDERS_PATH = "holders.json"
+LBP_ORIGINAL_HOLDERS_PATH = "lbp_original_holders.json"
+LBP_HOLDERS_PATH = "lbp_holders.json"
 
 
 def key():
@@ -117,25 +116,17 @@ def process():
         else:
             buyers[buyer] = tx['value']
 
-    # Write LBP buyers
-    if os.path.exists(LBP_BUYERS_PATH) is False:
-        with open(LBP_BUYERS_PATH, 'w') as out:
-            json.dump(buyers, out)
-
     # Write LBP contributors
-    if os.path.exists(LBP_HOLDERS_PATH) is False:
-        lbp_holders = dict(filter(lambda t: t[0] not in lbp_sellers, buyers.items()))
-        with open(LBP_CONTRiBUTORS_PATH, 'w') as out:
-            json.dump(lbp_holders, out)
+    if os.path.exists(LBP_ORIGINAL_HOLDERS_PATH) is False:
+        lbp_oringal_holders = dict(filter(lambda t: t[0] not in lbp_sellers, buyers.items()))
+        with open(LBP_ORIGINAL_HOLDERS_PATH, 'w') as out:
+            json.dump(lbp_oringal_holders, out)
 
     # Write LBP holders
     if os.path.exists(LBP_HOLDERS_PATH) is False:
         holders = dict(filter(lambda t: t[0] not in sellers, buyers.items()))
         with open(LBP_HOLDERS_PATH, 'w') as out:
             json.dump(holders, out)
-
-
-
 
 
 def format_holders():
@@ -156,6 +147,9 @@ class Cmd():
         '''
         Count the LBP holders
         '''
+        with open(LBP_ORIGINAL_HOLDERS_PATH) as f:
+            lbp_original_holders = json.loads(f.read())
+
         with open(LBP_HOLDERS_PATH) as f:
             lbp_holders = json.loads(f.read())
 
@@ -163,6 +157,11 @@ class Cmd():
         print(
             'Total Amount: %s' % (
                 int(sum(int(v) for v in lbp_holders.values())) / pow(10,18) - 3500000.0 )
+        )
+        print('LBP original holders:   %s' % len(lbp_original_holders))
+        print(
+            'Total Amount:           %s' % (
+                int(sum(int(v) for v in lbp_original_holders.values())) / pow(10,18) - 3500000.0 )
         )
 
 

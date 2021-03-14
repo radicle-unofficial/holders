@@ -3,7 +3,7 @@
 This repo is for counting the holders of RAD from LBP till block `12039504`.
 
 Here we are using ethplorer for fetching the records of transfer
-events, for using this script yourselves, go to https://ethplorer.io/ 
+events, for using this script yourselves, go to https://ethplorer.io
 and generate a API_KEY unless you'll fetching the txns with limit 10
 in every request.
 
@@ -12,10 +12,10 @@ Feel free to modify or contribute to this script.
 
 ## Result
 
-```
-LBP holders:  1097
-Total Amount: 1079558.0705975965
-```
+| LBP original holders | LBP holders        |
+|----------------------|--------------------|
+| 1928370.6939732786   | 1079558.0705975965 |
+
 
 ## Files
 
@@ -39,14 +39,9 @@ from the LBP till block `12039504`, with format:
 ```
 
 
-* `lbp_buyers.json`
+* `lbp_original_holders.json`
 
-Addresses who bought RAD in the LBP
-
-
-* `lbp_contributors.json`
-
-Addresses who bought RAD in the LBP
+Addresses who bought RAD in the LBP and did't sell them in in LBP
 
 
 * `lbp_holders.json`

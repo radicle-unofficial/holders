@@ -34,6 +34,17 @@ def key():
 def txns(api_key, timestamp, history):
     '''
     Get all transfer events of Radicle from the LBP
+
+    ## Data format
+    ```json
+    {
+      transactionHash,
+      timestamp,
+      value,
+      from,
+      to
+    }
+    ```
     '''
     print(f'Fetching txns start at {timestamp}...')
     res = json.loads(r.get(
@@ -49,10 +60,12 @@ def txns(api_key, timestamp, history):
     for operation in res['operations']:
         # Finish fetching while reaching the initial tx of LBP
         if operation['transactionHash'] == LBP:
+            print(f'Total txns: {len(history)}')
             return history
 
         # Append to history
         history.append({
+            'transactionHash': operation['transactionHash'],
             'timestamp': operation['timestamp'],
             'value': operation['value'],
             'from': operation['from'],
@@ -60,7 +73,7 @@ def txns(api_key, timestamp, history):
         })
 
     # Keep fetching to the LBP init TX
-    print(f'Currentt txns: {len(history)}')
+    print(f'Current txns: {len(history)}')
     return txns(api_key, history[len(history) - 1]['timestamp'], history)
 
 

@@ -156,14 +156,14 @@ class Cmd():
         '''
         Count the LBP holders
         '''
-        with open(LBP_BUYERS_PATH) as f:
-            lbp_buyers = json.loads(f.read())
-
         with open(HOLDERS_PATH) as f:
             lbp_holders = json.loads(f.read())
 
-        print("LBP buyers:  %s" % len(lbp_buyers))
-        print("LBP holders: %s" % len(lbp_holders))
+        print('LBP holders:  %s' % len(lbp_holders))
+        print(
+            'Total Amount: %s' % (
+                int(sum(int(v) for v in lbp_holders.values())) / pow(10,18) - 3500000.0 )
+        )
 
 
     def holders(self):

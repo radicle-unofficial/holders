@@ -14,6 +14,7 @@ eth-keys==0.3.3
 eth-rlp==0.2.1
 eth-typing==2.2.2
 eth-utils==1.10.0
+fire==0.4.0
 flake8==3.8.4
 hexbytes==0.2.1
 idna==2.10
@@ -44,6 +45,7 @@ rlp==2.0.1
 rope==0.18.0
 six==1.15.0
 snowballstemmer==2.1.0
+termcolor==1.1.0
 toml==0.10.2
 toolz==0.11.1
 ujson==4.0.2

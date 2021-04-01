@@ -156,12 +156,12 @@ class Cmd():
         print('LBP holders:  %s' % len(lbp_holders))
         print(
             'Total Amount: %s' % (
-                int(sum(int(v) for v in lbp_holders.values())) / pow(10,18) - 3500000.0 )
+                int(sum(int(v) for v in lbp_holders.values())) / pow(10,18))
         )
         print('LBP original holders:   %s' % len(lbp_original_holders))
         print(
             'Total Amount:           %s' % (
-                int(sum(int(v) for v in lbp_original_holders.values())) / pow(10,18) - 3500000.0 )
+                int(sum(int(v) for v in lbp_original_holders.values())) / pow(10,18))
         )
 
 
